@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+#
+# Copyright (c) 2016--18 Nic Sandfield
+#
+# Visualise stashed assets
+
+set -e -u -o pipefail
+
+function get_label {
+  if [[ "$1" != "${1#index}" ]]; then
+    echo index
+  elif [[ "$1" != "${1#untracked}" ]]; then
+    echo untracked
+  else
+    echo "??: $1" >&2
+    echo dunno
+  fi
+}
+
+git stash list \
+| while IFS=: read s b t; do
+    echo "${s}:${t} [$b ]"
+    git show --no-patch --pretty='           %C(green)%ci%C(reset)' $s
+    echo
+
+    # Handle the work tree commit (ie this stash node itself)
+    files=$(git show --pretty='' --name-only $s)
+    if [ -n "$files" ]; then
+      git show --no-patch --pretty='  %C(bold blue)%h %C(bold white)work tree%C(reset):' $s
+      while read f; do echo "  $f"; done <<<$files
+      echo
+    fi
+
+    # List the associated commits and do similar for them
+    git show --no-patch --format=%P "$s" \
+    | xargs --no-run-if-empty --max-args=1 echo \
+    | tail +2 \
+    | while read h; do
+        files=$(git show --pretty='' --name-only $h)
+
+        if [ -n "$files" ]; then
+          label=$(get_label "$(git show --no-patch --pretty='%s' $h)") \
+          && git show --no-patch --pretty="  %C(bold blue)%h %C(bold white)$label%C(reset):" $h
+          while read f; do echo "  $f"; done <<<$files
+          echo
+        fi
+      done
+  done
+
+exit
