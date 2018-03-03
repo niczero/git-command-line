@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+#
+# Copyright (c) 2016--18 Nic Sandfield
+#
+# Visualise branching & merging.
+
+git log --graph --date-order --oneline --decorate $*
+
+# eg:
+# git overview --branches --simplify-by-decoration
+# git overview --remotes=origin/release --simplify-by-decoration
