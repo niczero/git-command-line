@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+#
+# Copyright (c) 2016--18 Nic Sandfield
+#
+# Show parents of commit
+
+set -e -u -o pipefail
+
+hash="$(git rev-parse ${1:-HEAD}^0)"
+
+git show --no-patch --format=%P $hash \
+| \
+xargs --no-run-if-empty --max-args=1 git show --name-status
+
+# Very useful for viewing what's in a stash entry
+# git show-parents stash@{0}
+#
+# or indeed any merge commit
+# git show-parents origin/main^
+#
+# See also: git reveal-stash
