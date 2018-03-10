@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+#
+# Copyright (c) 2016--18 Nic Sandfield
+#
+# Show children of commit
+#
+# a bit expensive, but fine if not inside a loop
+
+set -e -u -o pipefail
+
+hash=$(git rev-parse ${1}^0)
+
+git rev-list --parents --all \
+| \
+grep -F " $hash" \
+| \
+cut -d' ' -f1 \
+| \
+xargs --no-run-if-empty --max-args=1 git show --name-status
