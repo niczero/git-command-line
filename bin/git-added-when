@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+set -e -u
+
+while read file; do
+  git log --format="%aI $file" \
+    --follow \
+    --find-renames=80 \
+    --diff-filter=A -- "$file"
+done
+
+exit
+
+# find ... -type f | git added-when | sort
